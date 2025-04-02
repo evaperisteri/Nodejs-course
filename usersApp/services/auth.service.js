@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+
 function generateAccessToken(user) {
   console.log("auth service: ", user)
   const payload = {
@@ -12,4 +13,14 @@ function generateAccessToken(user) {
   return jwt.sign(payload, secret, options);
 }
 
-module.exports = {generateAccessToken}
+function verifyAccessToken(token){
+  const secret = process.env.TOKEN_SECRET;
+  try{
+    const payload = jwt.verify(token, secret);
+    console.log("verify token", payload);
+    return{verified:true, data:payload}
+  }catch(err){
+    return {verified:false, data:err.message}
+  }
+}
+module.exports = {generateAccessToken, verifyAccessToken}
