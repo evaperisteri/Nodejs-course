@@ -2,41 +2,46 @@ const User = require('../models/user.model');
 const userService = require('../services/user.services');
 const bcrypt = require('bcrypt');
 
+const logger = require('../logger/logger')
 exports.findAll = async(req, res) => {
-  console.log("find all users from collection users");
+  console.log("Find all users from collection users");
+
   try {
-    //const result = await User.find();
+    // const result = await User.find();
     const result = await userService.findAll();
     res.status(200).json({status: true, data: result});
+    logger.info("INFO, success in reading all users")
   } catch (err) {
-    console.log("problem in reading users", err);
-    res.status(400).json({status: false, data: err});
+    console.log("Problem in reading users", err);
+    logger.error("ERROR, problem in reading all users", err);
+    res.status(400).json({status:false, data: err});
   }
 }
 
 exports.findOne = async(req, res) => {
-  console.log("Find user wih specific username");
+  console.log("Find user with specific username");
   let username = req.params.username;
-  try{
-    //const result = await User.findOne({username: username});
+
+  try {
+    // const result = await User.findOne({username: username});
     const result = await userService.findOne(username);
-    if(result){
+    if (result) {
       res.status(200).json({status:true, data: result});
-    } else{
-      res.status(404).json({status:false, data: "user does not exist"})
+    } else {
+      res.status(404).json({status: false, data: "User not exist"})
     }
-    
   } catch (err) {
-    console.log("Problem in finding user", err)
-    res.status(400).json({status: false, data:err});
+    console.log("Problem in findng user", err)
+    res.status(400).json({status: false, data: err});
   }
 }
 
-exports.create= async(req, res) => {
-  console.log("create user");
+exports.create = async(req, res) => {
+  console.log("Create User");
   let data = req.body;
   const SaltOrRounds = 10;
   const hashedPassword = await bcrypt.hash(data.password, SaltOrRounds)
+  
   const newUser = new User({
     username: data.username,
     password: hashedPassword,
@@ -45,26 +50,29 @@ exports.create= async(req, res) => {
     email: data.email,
     address: {
       area: data.address.area,
-      road:data.address.road
-    } 
+      road: data.address.road
+    }
   });
+
   try{
     const result = await newUser.save();
-    res.status(200).json({status:true, data: result});
+    res.status(200).json({status: true, data: result});
   } catch (err) {
-    console.log("problem in creating user", err);
-    res.status(400).json({status:false, data:err})
+    console.log("Problem in creating user", err);
+    res.status(400).json({status: false, data: err});
   }
 }
 
-exports.update = async(req, res) =>{
+exports.update = async(req, res) => {
   const username = req.body.username;
-  console.log("update user with username: ", username);
+
+  console.log("Update user with username", username);
+
   const updateUser = {
     name: req.body.name,
     surname: req.body.surname,
     email: req.body.email,
-    adress: {
+    address: {
       area: req.body.address.area,
       road: req.body.address.road
     }
@@ -72,34 +80,38 @@ exports.update = async(req, res) =>{
 
   try {
     const result = await User.findOneAndUpdate({username: username}, updateUser, {new:true});
-    res.status(200).json({status:true, data: result})
-  } catch (err){
-    console.log("problem in updating user");
-    re.status(400).json({status:false, data:err})
+    res.status(200).json({status:true, data:result});
+  } catch (err) {
+    console.log("Problem in updating user", err);
+    res.status(400).json({status:false, data: err});
   }
 }
 
-exports.deleteByUsername = async(req, res)=> {
-  const username = req.params.username
-  console.log("delete user with username: ", username);
-  try{
-    const result = await User.findOneAndDelete({username:username});
-    res.status(200).json({status:true, data: result})
-  } catch (err){
-    consol.log("Problem in deleting user: ", username);
-    res.status(400).json({status:false, data:err});
-  }
-}
+exports.deleteByUsername = async(req, res) => {
+    const username = req.params.username
+    console.log("Delete user with username", username);
 
-exports.deleteByEmail = async(req, res)=> {
+    try {
+      const result = await User.findOneAndDelete({username:username});
+      res.status(200).json({status:true, data: result});
+    } catch (err) {
+      console.log("Problem in deleting user", err);
+      res.status(400).json({status: false, data: err});
+    }
+}
+// http://localhost:3000/api/users/test
+
+exports.deleteByEmail = async(req, res) => {
   const username = req.params.username
   const email = req.params.email;
-  console.log("delete user with email: ", email);
-  try{
+  console.log("Delete user by email", email);
+
+  try {
     const result = await User.findOneAndDelete({email:email});
-    res.status(200).json({status:true, data: result})
-  } catch (err){
-    consol.log("Problem in deleting user with email: ", email);
-    res.status(400).json({status:false, data:err});
+    res.status(200).json({status:true, data: result});
+  } catch (err) {
+    console.log("Problem in deleting by email", err);
+    res.status(400).json({status: false, data: err});
   }
-}
+} 
+// http://localhost:3000/api/users/test/email/lakis@aueb.gr

@@ -16,6 +16,6 @@ app.use('/api/auth', auth);
 app.use('/api/users', user);
 app.use('/api/user-product', userProduct);
 
-app.use('/api/dpocs', swaggerUi.serve, swaggerUi.setup(swaggerDocument.options));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument.options));
 
 module.exports = app
